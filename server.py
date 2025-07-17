@@ -3,9 +3,11 @@ from fastapi.responses import FileResponse
 from typing import Optional
 from openai import OpenAI
 from dotenv import load_dotenv
+import time
 load_dotenv()
 
 app = FastAPI()
+client = OpenAI()
 
 @app.get("/")
 def read_root():
@@ -16,12 +18,16 @@ async def post_response(
     file: UploadFile = File(...), 
     prompt: Optional[str] = Form("Summarize this file: ")
 ):
-    client = OpenAI()
+    start_time = time.time()
     
+    file_content = await file.read()
+    read_time = time.time()
+
     file_response = client.files.create(
-        file = (file.filename, await file.read()),
+        file = (file.filename, file_content),
         purpose = "user_data"
     )
+    upload_time = time.time()
     
     file_id = file_response.id
 
@@ -37,5 +43,11 @@ async def post_response(
             }
         ]
     )
+    response_time = time.time()
+
+    print(f"File read: {read_time - start_time:.2f}s")
+    print(f"OpenAI upload: {upload_time - read_time:.2f}s")
+    print(f"OpenAI response: {response_time - upload_time:.2f}s")
+    print(f"Total: {response_time - start_time:.2f}s")
 
     return response.output[0].content[0].text
