@@ -1,8 +1,6 @@
 # README
 
-Demo pipeline to allow user to ask prompt about uploaded PDF file.
-
-Uses OpenAI's Files and Responses API to upload, then read the PDF.
+Added print logging for response timing and time.txt journal.
 
 ```sh
 # create virtual env
